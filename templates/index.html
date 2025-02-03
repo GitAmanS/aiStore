@@ -129,9 +129,10 @@
                 const data = await response.json();
 
                 // Display assistant response
-                const assistantMessage = document.createElement('div');
+                const assistantMessage = document.createElement('pre');
                 assistantMessage.className = 'chat-message assistant';
-                assistantMessage.textContent = data.response || 'No response received';
+                assistantMessage.textContent = JSON.stringify(data.function, null, 2) || 'No response received';
+                console.log(data);
                 chatBox.appendChild(assistantMessage);
 
             } catch (error) {
