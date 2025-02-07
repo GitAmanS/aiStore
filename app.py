@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-from run import get_response, context
+from functions.run import get_response, context
 # enable CORS
 from flask_cors import CORS
 
@@ -7,6 +7,9 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+# Set template folder to build
+app.template_folder = 'build'
 
 @app.route('/request', methods=['POST'])
 def process_request():
