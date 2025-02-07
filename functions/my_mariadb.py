@@ -13,8 +13,11 @@ def get_product_by_id(product_id):
     response = requests.get(f"{BASE_URL}/{product_id}")
     return response.json()
 
-def search_products(query):
-    response = requests.get(f"{BASE_URL}/search", params={"q": query})
+def search_products(query, limit=10, skip=0, select=None):
+    params = {"limit": limit, "skip": skip, "query": query}
+    if select:
+        params["select"] = ",".join(select)
+    response = requests.get(f"{BASE_URL}/search", params=params)
     return response.json()
 
 def get_products_by_category(category):
@@ -80,6 +83,9 @@ search_products_tool = {
             'required': ['query'],
             'properties': {
                 'query': {'type': 'string', 'description': 'One or more keywords to search for in the products table'},
+                'limit': {'type': 'integer', 'description': 'Number of products to return'},
+                'skip': {'type': 'integer', 'description': 'Number of products to skip'},
+                'select': {'type': 'array', 'description': 'List of fields to select'},
             },
         },
     },
