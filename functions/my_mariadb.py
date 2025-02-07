@@ -1,139 +1,90 @@
-import mariadb
+import requests
 
-def get_connection():
-    # Connection Configuration
-    config = {
-        "user": "root",
-        "password": "",
-        "host": "localhost",  # Change to the server IP if remote
-        "port": 3306,
-        "database": "archisty"
-    }
+BASE_URL = "https://dummyjson.com/products"
 
-    try:
-        # Establish Connection
-        conn = mariadb.connect(**config)
-        cursor = conn.cursor()
-        
-        # Example Query
-        cursor.execute("SELECT VERSION()")
-        version = cursor.fetchone()
-        
-        print(f"Connected to MariaDB, Version: {version[0]}")
+def get_all_products(limit=10, skip=0, select=None):
+    params = {"limit": limit, "skip": skip}
+    if select:
+        params["select"] = ",".join(select)
+    response = requests.get(BASE_URL, params=params)
+    return response.json()
 
-        # Close cursor
-        cursor.close()
-        
-        return conn
+def get_product_by_id(product_id):
+    response = requests.get(f"{BASE_URL}/{product_id}")
+    return response.json()
 
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB: {e}")
-        return None
+def search_products(query):
+    response = requests.get(f"{BASE_URL}/search", params={"q": query})
+    return response.json()
 
-def run_sql(query):
-    """
-    Run a SQL query
-    """
-    if not query or query == "":
-        print("No query provided")
-        return "No query provided"
-    print(f"\nRunning query: {query}\n")
-    conn = get_connection()
-    if conn is None:
-        print("Failed to get connection")
-        return "Failed to get connection"
-    cursor = conn.cursor()
-    try:
-        cursor.execute(query)
-        conn.commit()
-        result = cursor.fetchall()
-    except mariadb.Error as e:
-        print(f"Error running query: {e}")
-        result = "Error running query - " + str(e)
-    cursor.close()
-    conn.close()
-    return result
+def get_products_by_category(category):
+    response = requests.get(f"{BASE_URL}/category/{category}")
+    return response.json()
 
+def add_product(product_data):
+    response = requests.post(BASE_URL, json=product_data)
+    return response.json()
 
+def update_product(product_id, product_data):
+    response = requests.put(f"{BASE_URL}/{product_id}", json=product_data)
+    return response.json()
 
+def delete_product(product_id):
+    response = requests.delete(f"{BASE_URL}/{product_id}")
+    return response.json()
 
-def get_products_table(query):
-    # comma and space separated keywords
-    query = query.replace(',', ' ').replace('  ', ' ').strip()
-    columns_to_check = ['title', 'description']
-    queries = []
-    for word in query.split(' '):
-        for column in columns_to_check:
-            queries.append(f"{column} LIKE '%{word}%'")
-    query = f"SELECT * FROM products WHERE {' OR '.join(queries)}"
-    return run_sql(query)
-    
+def get_all_categories():
+    response = requests.get(f"{BASE_URL}/categories")
+    return response.json()
 
-def get_products_count(query):
-    # comma and space separated keywords
-    query = query.replace(',', ' ').replace('  ', ' ').strip()
-    columns_to_check = ['title', 'description']
-    queries = []
-    for word in query.split(' '):
-        for column in columns_to_check:
-            queries.append(f"{column} LIKE '%{word}%'")
-    query = f"SELECT * FROM products WHERE {' OR '.join(queries)}"
-    return len(run_sql(query))
+# Example Usage
+if __name__ == "__main__":
+    print(get_all_products(limit=5))
+    print(get_product_by_id(1))
+    print(search_products("phone"))
+    print(get_products_by_category("smartphones"))
+    print(add_product({"title": "New Product", "price": 100}))
+    print(update_product(1, {"price": 120}))
+    print(delete_product(1))
+    print(get_all_categories())
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-run_sql_tool = {
+get_all_products_tool = {
     'type': 'function',
     'function': {
-        'name': 'run_sql',
-        'description': 'Run a MariaDB query',
+        'name': 'get_all_products',
+        'description': 'Get all products',
         'parameters': {
             'type': 'object',
-            'required': ['query'],
+            'required': ['limit'],
             'properties': {
-                'query': {'type': 'string', 'description': 'The SQL query to run'},
+                'limit': {'type': 'integer', 'description': 'Number of products to return'},
+                'skip': {'type': 'integer', 'description': 'Number of products to skip'},
+                'select': {'type': 'array', 'description': 'List of fields to select'},
             },
         },
     },
 }
 
-get_products_table_tool = {
+get_product_by_id_tool = {
     'type': 'function',
     'function': {
-        'name': 'get_products_table',
-        'description': 'Get products table',
+        'name': 'get_product_by_id',
+        'description': 'Get product by ID',
         'parameters': {
             'type': 'object',
-            'required': ['query'],
+            'required': ['product_id'],
             'properties': {
-                'query': {'type': 'string', 'description': 'One or more keywords to search for in the products table. Comma separated.'},
+                'product_id': {'type': 'integer', 'description': 'ID of the product to retrieve'},
             },
         },
     },
 }
 
-
-get_products_count_tool = {
+search_products_tool = {
     'type': 'function',
     'function': {
-        'name': 'get_products_count',
-        'description': 'Get products count',
+        'name': 'search_products',
+        'description': 'Search for products',
         'parameters': {
             'type': 'object',
             'required': ['query'],
@@ -144,6 +95,86 @@ get_products_count_tool = {
     },
 }
 
-globals()['run_sql'] = run_sql
-globals()['get_products_table'] = get_products_table
-globals()['get_products_count'] = get_products_count
+get_products_by_category_tool = {
+    'type': 'function',
+    'function': {
+        'name': 'get_products_by_category',
+        'description': 'Get products by category',
+        'parameters': {
+            'type': 'object',
+            'required': ['category'],
+            'properties': {
+                'category': {'type': 'string', 'description': 'Category of the products to retrieve'},
+            },
+        }}
+}
+
+
+add_product_tool = {
+    'type': 'function',
+    'function': {
+        'name': 'add_product',
+        'description': 'Add a new product',
+        'parameters': {
+            'type': 'object',
+            'required': ['title', 'price'],
+            'properties': {
+                'title': {'type': 'string', 'description': 'Title of the product'},
+                'price': {'type': 'number', 'description': 'Price of the product'},
+            },
+        },
+    },
+}
+
+
+update_product_tool = {
+    'type': 'function',
+    'function': {
+        'name': 'update_product',
+        'description': 'Update an existing product',
+        'parameters': {
+            'type': 'object',
+            'required': ['product_id', 'price'],
+            'properties': {
+                'product_id': {'type': 'integer', 'description': 'ID of the product to update'},
+                'price': {'type': 'number', 'description': 'New price of the product'},
+            },
+            }
+    }
+}
+
+delete_product_tool = {
+    'type': 'function',
+    'function': {
+        'name': 'delete_product',
+        'description': 'Delete a product',
+        'parameters': {
+            'type': 'object',
+            'required': ['product_id'],
+            'properties': {
+                'product_id': {'type': 'integer', 'description': 'ID of the product to delete'},
+            },
+        },
+    }
+}
+
+get_all_categories_tool = {
+    'type': 'function',
+    'function': {
+        'name': 'get_all_categories',
+        'description': 'Get all categories',
+        'parameters': {
+            'type': 'object',
+            'required': [],
+            'properties': {},
+        },
+    },
+}
+globals()['get_all_products'] = get_all_products
+globals()['get_product_by_id'] = get_product_by_id
+globals()['search_products'] = search_products
+globals()['get_products_by_category'] = get_products_by_category
+globals()['add_product'] = add_product
+globals()['update_product'] = update_product
+globals()['delete_product'] = delete_product
+globals()['get_all_categories'] = get_all_categories

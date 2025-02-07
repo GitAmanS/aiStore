@@ -4,10 +4,10 @@ from typing import Dict, Any, Callable
 import json
 
 # internal imports
-from functions.my_mariadb import get_products_table, get_products_table_tool, get_products_count_tool, get_products_count
-
+from functions.my_mariadb import get_all_products, get_product_by_id, search_products, get_products_by_category, add_product, update_product, delete_product, get_all_categories
+from functions.my_mariadb import get_all_products_tool, get_product_by_id_tool, search_products_tool, get_products_by_category_tool, add_product_tool, update_product_tool, delete_product_tool, get_all_categories_tool
 context = []
-tools = [get_products_table_tool, get_products_count_tool]
+tools = [get_all_products_tool, get_product_by_id_tool, search_products_tool, get_products_by_category_tool, add_product_tool, update_product_tool, delete_product_tool, get_all_categories_tool]
 
 def tool_call_to_dict(tool_call):
     """
@@ -26,9 +26,14 @@ def get_response(prompt: str, use_tools: bool = True) -> Any:
     context.append({'role': 'user', 'content': prompt})
 
     available_functions: Dict[str, Callable] = {
-        'get_products_table': get_products_table,
-        'get_products_count': get_products_count,
-
+        'get_all_products': get_all_products,
+        'get_product_by_id': get_product_by_id,
+        'search_products': search_products,
+        'get_products_by_category': get_products_by_category,
+        'add_product': add_product,
+        'update_product': update_product,
+        'delete_product': delete_product,
+        'get_all_categories': get_all_categories
     }
 
     response = ollama.chat(
@@ -67,6 +72,16 @@ def get_response(prompt: str, use_tools: bool = True) -> Any:
     else:
         context.append({'role': 'assistant', 'content': response.message.content})
 
-    returner["context"] = context
+    update_context()
+    # returner["context"] = context
 
     return returner
+
+def update_context():
+    global context
+    with open('context.json', 'w') as f:
+        json.dump(context, f, indent=4)
+
+def set_context(new_context):
+    global context
+    context = new_context
