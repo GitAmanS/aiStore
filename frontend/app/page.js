@@ -7,11 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
 const BASE_API = "https://1067-106-219-166-132.ngrok-free.app";
-
+//base api
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
-  const [chat, setChat] = useState([]); // Store chat history
+  const [chat, setChat] = useState([]); 
   const [error, setError] = useState(null);
 
   const generateData = async () => {
@@ -34,18 +34,16 @@ export default function Home() {
       const data = await res.json();
       const responses = data.function.map((f) => ({ type: "bot", text: f.output }));
 
-      // Add AI response to chat
       setChat((prev) => [...prev, ...responses]);
     } catch (err) {
       setError("Something went wrong. Please try again.");
       setChat((prev) => [...prev, { type: "bot", text: "Something went wrong. Please try again." }]);
     } finally {
       setIsLoading(false);
-      setQuery(""); // Clear input after sending
+      setQuery(""); 
     }
   };
 
-  // Handle Enter key to send message
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -57,7 +55,6 @@ export default function Home() {
     <div className="flex flex-col items-center min-h-screen px-4 md:px-72 pb-40">
       <SparklesText className="py-12" text="Store AI" />
 
-      {/* Chat UI */}
       <div className="w-full flex flex-col gap-2">
         {chat.map((msg, index) => (
           <div
@@ -82,13 +79,12 @@ export default function Home() {
         )}
       </div>
 
-      {/* Input & Button */}
       <div className="fixed w-full px-60 flex flex-col mt-auto pb-4 bottom-0 bg-white items-end justify-center gap-2">
         <Textarea
           placeholder="Enter your prompt"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown} // Listen for Enter key
+          onKeyDown={handleKeyDown} 
           disabled={isLoading}
         />
         <ShinyButton onClick={generateData} disabled={isLoading}>
