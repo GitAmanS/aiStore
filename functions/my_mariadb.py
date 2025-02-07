@@ -37,16 +37,6 @@ def get_all_categories():
     response = requests.get(f"{BASE_URL}/categories")
     return response.json()
 
-# Example Usage
-if __name__ == "__main__":
-    print(get_all_products(limit=5))
-    print(get_product_by_id(1))
-    print(search_products("phone"))
-    print(get_products_by_category("smartphones"))
-    print(add_product({"title": "New Product", "price": 100}))
-    print(update_product(1, {"price": 120}))
-    print(delete_product(1))
-    print(get_all_categories())
 
 get_all_products_tool = {
     'type': 'function',
