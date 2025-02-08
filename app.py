@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from functions.run import get_response, context
+from flask import send_from_directory as static_file
 # enable CORS
 from flask_cors import CORS
 
@@ -8,7 +9,8 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Set template folder to build
+
+app.static_folder = 'build'
 app.template_folder = 'build'
 
 @app.route('/request', methods=['POST'])
