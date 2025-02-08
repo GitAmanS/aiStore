@@ -6,14 +6,16 @@ import { SparklesText } from "@/components/ui/sparkles-text";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
-const BASE_API = "https://1067-106-219-166-132.ngrok-free.app";
 
+const BASE_API = process.env.NEXT_PUBLIC_BASE_API;
 export default function Home() {
+  
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [chat, setChat] = useState([]); 
   const [error, setError] = useState(null);
 
+  // console.log("Base API:", BASE_API)
   const generateData = async () => {
     if (!query.trim()) return;
 
