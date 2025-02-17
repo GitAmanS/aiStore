@@ -2,3 +2,5 @@ myenv/*
 *cache*
 *env*
 context.json
+_*
+build
