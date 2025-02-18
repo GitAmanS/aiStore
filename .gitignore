@@ -3,4 +3,4 @@ myenv/*
 *env*
 context.json
 _*
-build
+build/*
