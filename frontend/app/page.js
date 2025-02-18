@@ -6,7 +6,7 @@ import { SparklesText } from "@/components/ui/sparkles-text";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
-const BASE_API = "https://1067-106-219-166-132.ngrok-free.app";
+const BASE_API = "http://localhost:5000";
 //base api
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,8 +31,18 @@ export default function Home() {
 
       if (!res.ok) throw new Error("Failed to fetch response");
 
+      console.log("Response:", res);
+
       const data = await res.json();
-      const responses = data.function.map((f) => ({ type: "bot", text: f.output }));
+      console.log("Response data:", data);
+      console.log("Parsed function:", data.function);
+      console.log("Parsed message:", data.message);
+      console.log("Parsed output:", data.function.length == 0 ? data.message.content : data.function.output);
+      const responses = data.function.map((f) => ({
+        type: "bot",
+        text: f.output === null ? data.message.content : f.output,
+      }));
+      console.log("Parsed responses:", responses);
 
       setChat((prev) => [...prev, ...responses]);
     } catch (err) {

@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
-from functions.run import get_response, context
+from functions.run import LLM
+from functions.Context import Context_Handler
 # enable CORS
 from flask_cors import CORS
-
-
 
 app = Flask(__name__)
 CORS(app)
@@ -27,7 +26,8 @@ def process_request():
         data = request.form
     else:
         data = request.get_json()
-    response = get_response(data['query'])
+    myLLM = LLM()
+    response = myLLM.get_response(data['query'], use_tools=True, user_id=1)
     return response
 
 @app.route('/')
@@ -36,8 +36,9 @@ def home():
 
 @app.route('/context-clear')
 def clear_context():
-    global context
-    context = []
+    user_id = 1
+    context = Context_Handler(user_id)
+    context.clear_context()
     return 'Context cleared'
 
 
